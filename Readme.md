@@ -21,6 +21,6 @@ La versión final del trabajo puede visualizarse en:
 <!-- Abajo podéis escribir lo que queráis, igual un resumen del trabajo, o ..., o ... pero al menos, tenéis que poner el título del trabajo y el nombre de los componentes del equipo-->
 
 El título del trabajo es “Análisis de la oferta audiovisual de Netflix”.
-Los componentes del grupo: Marta Oliver Beltrán, Carlos Rodríguez Gonzalvoy Mar Valldecabres Lull.
+Los componentes del grupo: Marta Oliver Beltrán, Carlos Rodríguez Gonzalvo y Mar Valldecabres Lull.
 
 <!-- Finalmente, acuérdate que cuando hayas hecho los cambios y hayas dejado este archivo como hayáis decidido, TENEIS que knittearlo para que los cambio se actualicen en el fichero Readme.md, que es el que finalmente se visualizará en Github-->
