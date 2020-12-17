@@ -1,0 +1,307 @@
+---
+title: "Análisis de la oferta audiovisual de Netflix"
+subtitle: "Marta Oliver, Carlos Rodriguez y Mar Valldecabres."
+author: "Universitat de València."
+date: "Diciembre de 2020"
+output: ioslides_presentation
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+```{r packages-setup, include = FALSE}
+library(tidyverse)
+library(klippy)  #- remotes::install_github("rlesur/klippy")
+library(knitr)
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(ggThemeAssist)
+library(scales)
+library(plotly)
+library(gapminder)
+library(gganimate)
+library(reactable)
+library(gt)
+```
+
+
+
+## ÍNDICE {.smaller}
+
+1. Introducción 
+2. ¿Qué es Netflix?
+3. Un poco de historia
+4. Análisis de laoferta audiovisual de Netflix
+- 4.1 Datos analizados.
+- 4.2 Gráfico TvShows Vs Movies en el tiempo.
+- 4.3 Películas y series ordenadas por años de producción.
+- 4.4 Los diez directores con más películas.
+- 4.5 Los diez países con más películas.
+- 4.6 Gráfico porcentaje TvShows Vs Movies.
+- 4.7 Las diez películas más largas.
+- 4.8 Tv Shows lanzados por año de producción.
+
+5.Evolución de los suscriptores
+
+6.Bibliografía
+  
+
+
+## 1. INTRODUCCIÓN {.smaller}
+
+Este trabajo consiste en un estudio de las diferentes películas y series de netflix. Con este análisis queremos poner en práctica lo estudiado en la asignatura de Programación y manejo de datos en la era del Big Data.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "76%", fig.align = "center"}
+knitr::include_graphics(here::here("imagenes", "Foto1.jpg") ) 
+```
+
+
+## 2. ¿QUÉ ES NETFLIX?  {.smaller}
+
+
+Netflix es un servicio de streaming que funciona mediante suscripción y permite a sus usuarios ver series y películas, sin anuncios, a través de cualquier dispositivo conectado a internet.   
+
+También se pueden descargar series y películas en cualquier dispositivo iOS, Android, o Windows 10 y verlas sin necesidad de conexión a internet.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "50%", fig.align = "center"}
+knitr::include_graphics(here::here("imagenes", "N.png") ) 
+```
+
+## 3. Un poco de historia  {.smaller}
+
+La compañía no tuvo éxito desde un comienzo, pero las buenas acciones de sus desarrolladores la llevaron a obtener las ganancias que tiene hoy en día.
+
+En sus principios, Netflix era una compañía que alquilaba DVD’s, se fundó en 1997, y fue en 1998 donde alquiló su primer DVD. La empresa comenzó alquilando películas por esta modalidad.
+
+
+- En 2007, Netflix inicia su servicio de VOD en Estados Unidos para computadoras personales. 
+
+- A partir de 2008 se agregan diferentes opciones para acceder al catálogo por retransmisión en directo. 
+
+- En 2009 su catálogo físico ofrece 100 mil títulos y su clientela supera los 10 millones de suscriptores.
+
+- En 2012 ofrece sus servicios en algunos países de Europa.  
+
+- En 2016 ofrece sus contenidos a todo el mundo con excepción de la región de Crimea, y los territorios de Corea del Norte, China y Siria.
+
+
+## 4. ANÁLISIS DE LA OFERTA AUDIOVISUAL DE NETFLIX {.smaller}
+ 
+4.1 Datos analizados
+
+La tabla 'netflix' nos da los datos de las Movies y TVShows que Netflix tiene en su página. Nos indica el título de cada una de ellas, su director, la ciudad donde fueron producidas, la fecha que se estrenaron y la que se subieron a la plataforma de Netflix, la duración y el género.
+
+Con la función anterior hemos arreglado los datos de netflix_titles y eliminado las columnas 'show_id', 'coast', 'description' y 'ratiing'.
+
+```{r, include = TRUE, echo = TRUE}
+netflix <- read_excel("./Datos/netflix_titles.xlsx")
+netflix <- netflix %>% select(-show_id, -cast, -description, -rating)
+suscriptores <- read_excel("./Datos/suscriptores11.xlsx")
+```
+
+
+## 4.2 Gráfico TvShows Vs Movies e el tiempo {.smaller}
+
+```{r, echo = TRUE, eval = TRUE, out.width = "50%", fig.align="center"}
+cuatro <- netflix %>% group_by(type, release_year)%>% count()
+cuatro1 <- ggplot(cuatro, aes(x = release_year, y = n)) + geom_area(aes(color = type, fill = type),
+alpha = 0.5, position=position_dodge(0.8))+ scale_color_manual(values=c("#00AFBB","#E7B800"))+ scale_fill_manual(values=c("#00AFBB","#E7B800"))
+cuatro1+labs(title = "TVShows y Movies en el tiempo")
+
+```
+
+En sus principios, Netflix era una compañía que alquilaba DVD’s, se fundó en 1997, y fue en 1998 donde alquiló su primer DVD. La empresa comenzó alquilando películas por esta modalidad.
+
+## 4.3 Películas y series ordenadas por años de producción {.smaller}
+
+Lo primero que vamos a hacer es ordenar las películas y series de más antigua a más nueva y después mover la columna "release_year" a la izquierda de todo.
+
+```{r, echo = TRUE, eval = TRUE, fig.align="center"}
+grafico2 <- netflix %>% arrange(release_year)
+grafico2.1 <- grafico2 %>% select(release_year, everything())
+```
+
+
+## 4.3 Películas y series ordenadas por años de producción {.smaller}
+
+```{r eval=TRUE, echo=FALSE, out.width = "5%" }
+
+reactable(grafico2.1, defaultPageSize =  10,  paginationType = "jump", showPageSizeOptions =  TRUE , pageSizeOptions =  c ( 10 , 50 , 100 ),defaultColDef = colDef(
+    align = "center",
+    minWidth = 70,
+    headerStyle = list(background = "red"),
+    filterable = TRUE),  highlight = TRUE, outlined = TRUE,
+    columns = list(
+  `Movies&TVShow/año` = colDef(style = function(value) {
+    if (value > 0) {
+      color <- "#e00000"}
+      else {
+      color <- "#008000"
+    }
+    list(color = color, fontWeight = "bold")
+  })))
+
+```
+
+
+## 4.3 Películas y series ordenadas por años de producción {.smaller}
+
+Como podemos observar en la tabla anterior, la serie más antigua que existe en la plataforma de Netflix es "Pioneers: First Women Filmmakers"
+
+```{r, echo = FALSE, eval = TRUE, out.width = "25%", fig.align = "center"}
+knitr::include_graphics(here::here("imagenes", "primera_serie.jpg") ) 
+```
+
+## 4.3 Películas y series ordenadas por años de producción {.smaller}
+
+La película más antigua que se encuentra en la plataforma es, "Prelude to War", una película estadounidense basada en la Segunda Guerra Mundial y cuyo director es Frank Capra.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "25%", fig.align = "center"}
+knitr::include_graphics(here::here("imagenes", "primera_pelicula.jpg") ) 
+```
+
+## 4.4 Los diez directores con más películas {.smaller}
+
+```{r, echo = FALSE, eval = TRUE}
+grafico4 <- netflix %>% filter(type == "Movie") %>%group_by(director) %>% summarise(Películas=n()) %>% na.omit(datos) %>% slice_max(Películas,n =10)
+grafico41 <- grafico4 %>% mutate(director = forcats::as_factor(director))
+```
+
+
+
+```{r eval=TRUE, echo=FALSE, out.width = "50%", fig.align="center"}
+knitr::kable(director <- grafico41)
+
+```
+
+## 4.4 Los diez directores con más películas {.smaller}
+
+De forma más visual se puede observar lo anteriormente mostrado en el siguiente gráfico. Raúl Campos y Jan Suter son los directores con diferencia que más películas han realizado.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "50%", fig.align = "center"}
+
+graficodirectores1 <- ggplot (grafico41, aes(x=director, y = Películas), aes(fct_rev(director))) + geom_bar(stat="identity", fill = "red") + coord_flip() + labs(x = "Director", y = "Número de películas")+labs(title = "Diez directores con más películas")
+ggplotly(graficodirectores1)
+```
+
+## 4.5 Los díez países con más películas. {.smaller}
+
+El país con más películas producidas que hay ne la plataforma de Netflix es Estados Unidos y el segundo es India.
+
+Sorprende que India sea de los paises que tiene más producción de cine y esto se debe a la industria cinematográfica ubicada en una de sus ciudades más pobladas, Bombay. Esta ha desbancado en el número de producción de películas a Hollywood, y es que en Bollywood se producen cada año más de 1.000 cintas o películas.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "50%", fig.align = "center"}
+grafico4 <- netflix %>% filter(type == "Movie") %>%group_by(country) %>% summarise(Países=n()) %>% na.omit(datos) %>% slice_max(Países,n =10)
+grafico41 <- grafico4 %>% mutate(country = forcats::as_factor(country))
+d <- ggplot (grafico41,aes(x=country, y = Países), aes(fct_rev(country))) + geom_bar(stat="identity", fill = "black") + coord_flip()
+d + labs(title = "Gráfico de los 10 países con más películas producidas",
+       caption = "Datos provenientes del netflix_titles dataset",
+       x = "País",
+       y = "Número de Películas",
+       color = "Especie de lirio")
+```
+
+## 4.5 Los díez países con más películas. {.smaller}
+
+Hemos creado un mapa para mostrar estos diez paises.
+
+``` {r, echo = FALSE, eval = TRUE}
+world <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") 
+world1 <- world %>% filter (admin %in% c("Japan", "Hong Kong", "France", "Mexico", "Turkey", "Spain", "Canada", "United Kingdom", "India", "United States of America"))
+
+world2 <- world %>% filter(!(admin %in% c("Japan", "Hong Kong", "France", "Mexico", "Turkey", "Spain", "Canada", "United Kingdom", "India", "United States")))
+
+world3 <- ggplot () + geom_sf(data = world2) + geom_sf(data = world1, fill = "black") +  labs(title = "Países con más películas en Netflix",  caption = "Elaboracion propia") + theme(panel.grid.major = element_line(color = gray(.8), linetype = "dashed", size = 0.05), panel.background = element_rect(fill = "gray")) + coord_sf(xlim = c(-160, 160), ylim = c(-50, 80), expand = FALSE) + 
+annotate(geom = "text", label = "1482", size = 4, x = -72.5, y = 43, color = "RED") +
+annotate(geom = "text", label = "80", size = 4, x = -4, y = 42.5, color = "RED") + 
+annotate(geom = "text", label = "170", size = 4, x = -1, y = 55, color = "RED")  + 
+annotate(geom = "text", label = "50", size = 4, x = 3, y = 50,color = "RED") +
+annotate(geom = "text", label = "55", size = 4, x = 35.18, y = 38.84, color = "RED") + 
+annotate(geom = "text", label = "724", size = 4, x = 79.89, y = 20.95, color = "RED") + 
+annotate(geom = "text", label = "88", size = 4, x = -101.11, y = 55.29, color = "RED") + 
+annotate(geom = "text", label = "54", size = 4, x = -99.27, y = 19.67, color = "RED")+
+annotate(geom = "text", label = "49", size = 4, x = 114.10, y = 22.39, color = "RED")+ 
+annotate(geom = "text", label = "47", size = 4, x = 139.41, y = 36.72, color = "RED")
+world3
+```
+
+## 4.6 Gráfico porcentaje TvShows Vs Movies {.smaller}
+
+Con este gráfico podemos ver que en la oferta de Netflix predominan las películas frente a las series. El porcentaje de películas es de aproximadamente un 68% frente al 32% de series.
+
+```{r, echo = FALSE, eval = TRUE, out.width = "50%", fig.align = "center"}
+grafico6 <- netflix %>% group_by(type) %>% summarise(NN=n()) %>% mutate(prob = prop.table(NN)*100)
+grafico61 <- ggplot(grafico6, aes(x = "", y = prob, fill = prob))+geom_bar(stat="identity", color = "white") + geom_text(aes(label=prob),position=position_stack(vjust=0.5), color="white", size=5) + coord_polar(theta="y") + theme_void()
+grafico61+labs(title = "Movies Vs Tv SHows")
+
+```
+
+## 4.7 Las diez películas más largas {.smaller}
+
+En este apartado hemos tenido muchos problemas...
+
+```{r, echo = FALSE, eval = TRUE}
+i <-   separate(data = netflix, col = "duration", into = c("duracion", "tipo"), sep = " ") %>% mutate(duracion = as.numeric(duracion)) %>% filter (tipo == "min") %>% top_n(duracion, n = 10) %>% mutate(duracion = forcats::as_factor(duracion)) 
+```
+
+```{r eval=TRUE, echo=FALSE, out.width = "20%", fig.align = "center"}
+knitr::kable(Movies <- i)
+
+```
+
+## 4.8 TV Shows lanzados por año de producción {.smaller}
+
+En este apartado hemos aislado los datos de TVShows para poder realizar el gráfico correspondiente.
+
+```{r, echo = FALSE, eval = TRUE}
+i2 <-   separate(data = netflix, col = "duration", into = c("duracion", "tipo"), sep = " ") %>% mutate(duracion = as.numeric(duracion)) %>% filter (tipo == "Season") %>% mutate(duracion = forcats::as_factor(duracion)) 
+```
+
+```{r, echo = FALSE, eval = TRUE, out.width = "50%", fig.align = "center"}
+
+grafico4.8 <- i2 %>% group_by(release_year) %>% summarise(NN=n())
+b <- ggplot (grafico4.8, aes(x = release_year, y = NN)) + geom_bar(stat = "identity", fill = "steelblue")
+b + labs(title = "Gráfico: TVShows por año",
+       subtitle = "(diferenciando por año)",
+       caption = "Datos provenientes del netflix_titles dataset",
+       x = "Release_year",
+       y = "NN",
+       color = "Especie de lirio")
+```
+
+
+## 5. Evolución de los suscriptores  {.smaller}
+
+```{r, echo = FALSE, eval = TRUE, out.width = "50%", fig.align = "center"}
+
+
+suscriptores %>%
+  ggplot( aes(x=Año, y=Suscriptors, group=Zonas_geográficas, color=Zonas_geográficas)) +
+    geom_line() +
+    geom_point() + 
+      transition_reveal(Año)
+
+```
+
+      
+Con este gráfico podemos ver la evolución de los  nuevos suscriptores analizando los datos del mes de enero de los años 2018, 2019 y 2020.
+
+Podemos observar que Europa es la que ha experimentado un mayor crecimiento de suscriptores desde hace tres años hasta ahora con una diferencia de mas de 40.000 suscriptores en este mes desde 2018 hasta 2020.
+
+EEUU y Canadá ya contaban con un gran número de suscriptores en marzo de 2018 y siguen siendo la zona que mas suscriptores tienen. Al mismo tiempo que la zona de Asia tienen un número mucho menor.
+
+
+
+
+## Bibliografía. {.smaller}
+
+- [enlace a la página web de la asignatura](https://perezp44.github.io/intro-ds-20-21-web/04-tutoriales.html)
+- [enlace galeria de gráficos de ggplot2](https://www.r-graph-gallery.com/)
+- [repositorio de los datos del trabajo](https://www.kaggle.com/shivamb/netflix-shows)
+
+# 
+
